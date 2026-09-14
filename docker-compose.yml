@@ -13,6 +13,8 @@ services:
       - "5435:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - lenny_network
 
   ollama:
     image: ollama/ollama:latest
@@ -22,6 +24,44 @@ services:
       - "11434:11434"
     volumes:
       - ollama_storage:/root/.ollama
+    networks:
+      - lenny_network
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: lenny_api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/lenny_assistant
+      LLM_PROVIDER: ollama
+      LLM_MODEL: llama3.1:8b
+      OLLAMA_BASE_URL: http://ollama:11434
+    depends_on:
+      - postgres
+      - ollama
+    networks:
+      - lenny_network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: lenny_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - lenny_network
+
+networks:
+  lenny_network:
+    driver: bridge
 
 volumes:
   pgdata:
