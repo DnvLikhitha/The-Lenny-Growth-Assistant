@@ -227,13 +227,11 @@ async def api_generate_artifact(session_id: str, req: CreateArtifactRequest):
         raise HTTPException(status_code=404, detail="Session not found")
 
     messages = sess.get("messages", [])
-    
-    # First, persist user prompt in messages so session isn't empty and retrieve fresh ID
-    if not messages or messages[-1]["role"] != "user":
-        user_msg = save_message(session_id=session_id, role="user", content=req.prompt)
-        last_msg_id = user_msg["id"]
-    else:
-        last_msg_id = messages[-1]["id"]
+
+    # Persist the artifact request itself so a fresh session is valid and the
+    # generated artifact always has a message to reference.
+    user_msg = save_message(session_id=session_id, role="user", content=req.prompt)
+    last_msg_id = user_msg["id"]
 
     try:
         res = await orchestrator.write_ship30_essay(
