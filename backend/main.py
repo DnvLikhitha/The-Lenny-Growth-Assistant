@@ -207,12 +207,8 @@ async def api_generate_artifact(session_id: str, req: CreateArtifactRequest):
     if not sess:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    # Get last assistant message or user prompt
     messages = sess.get("messages", [])
-    if not messages:
-        raise HTTPException(status_code=400, detail="Cannot generate artifact for empty session.")
-
-    last_msg_id = messages[-1]["id"]
+    last_msg_id = messages[-1]["id"] if messages else None
 
     try:
         res = await orchestrator.write_ship30_essay(

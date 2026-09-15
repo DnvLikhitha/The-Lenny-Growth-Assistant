@@ -281,7 +281,7 @@ def save_message(
     }
 
 def save_artifact(
-    message_id: str,
+    message_id: Optional[str],
     kind: str,
     content: str,
     word_count: int,
