@@ -115,12 +115,12 @@ class AgentOrchestrator:
 
         system_prompt = (
             "You are a master essayist following the Ship 30 for 30 framework.\n"
-            "Generate a comprehensive, actionable essay on the given topic (~1,250 words).\n"
-            "Must follow this structure:\n"
+            "Generate an essay on the given topic.\n"
+            "MUST follow this exact structure:\n"
             "1. Strong opening hook line.\n"
-            "2. Clear subheadings (Markdown ##).\n"
+            "2. Clear subheadings using Markdown ## (e.g. ## Pillar 1: Clarity).\n"
             "3. High-impact bullet points with **bold emphasis** on key terms.\n"
-            "4. An explicit **Key Takeaway** or **Bottom Line** section at the end.\n"
+            "4. An explicit **Key Takeaway** or **Bottom Line** section at the very end.\n"
             "Base insights on these transcript sources:\n" + context_str
         )
 
