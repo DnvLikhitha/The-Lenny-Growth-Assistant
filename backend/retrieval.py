@@ -8,10 +8,17 @@ from sentence_transformers import SentenceTransformer
 EMBEDDING_MODEL_NAME = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5435/lenny_assistant")
 
+_cached_model = None
+
+def get_embedding_model():
+    global _cached_model
+    if _cached_model is None:
+        _cached_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+    return _cached_model
+
 class RetrievalService:
     def __init__(self, model_name: str = EMBEDDING_MODEL_NAME, db_url: str = DATABASE_URL):
         self.db_url = db_url.replace("postgresql+asyncpg://", "postgresql://")
-        self.model = SentenceTransformer(model_name)
 
     def get_connection(self):
         conn = psycopg.connect(self.db_url)
@@ -19,13 +26,12 @@ class RetrievalService:
         return conn
 
     def retrieve(self, query: str, top_k: int = 5) -> Dict[str, Any]:
-        query_vector = self.model.encode(query).tolist()
+        model = get_embedding_model()
+        query_vector = model.encode(query).tolist()
         
         conn = self.get_connection()
         results = []
         with conn.cursor() as cur:
-            # Cosine distance operator in pgvector is <=>
-            # Cosine similarity = 1 - (cosine distance)
             cur.execute("""
             SELECT 
                 id, episode_slug, episode_title, guest_name, source_path,
@@ -51,7 +57,6 @@ class RetrievalService:
                 })
         conn.close()
 
-        # Compute aggregate retrieval score (average of top 3 or top k)
         if results:
             top_scores = [r["relevance_score"] for r in results[:min(3, len(results))]]
             aggregate_score = float(np.mean(top_scores))
