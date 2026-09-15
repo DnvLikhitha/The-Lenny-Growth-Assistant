@@ -127,6 +127,17 @@ def api_delete_session(session_id: str):
         raise HTTPException(status_code=404, detail="Session not found")
     return make_envelope({"deleted": True})
 
+class UpdateSessionRequest(BaseModel):
+    title: str
+
+@app.patch("/sessions/{session_id}")
+def api_update_session(session_id: str, req: UpdateSessionRequest):
+    from backend.database import update_session_title
+    success = update_session_title(session_id, req.title)
+    if not success:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return make_envelope({"updated": True, "title": req.title})
+
 @app.post("/sessions/{session_id}/messages")
 async def api_send_message(session_id: str, req: SendMessageRequest):
     sess = get_session(session_id)

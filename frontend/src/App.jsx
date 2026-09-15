@@ -48,6 +48,8 @@ export default function App() {
   const [artifact, setArtifact] = useState(null);
   const [artifactMode, setArtifactMode] = useState("rendered"); // rendered | raw
   const [status, setStatus] = useState("idle"); // idle | retrieving | streaming | generating
+  const [editingSessionId, setEditingSessionId] = useState(null);
+  const [editingTitle, setEditingTitle] = useState("");
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -118,6 +120,57 @@ export default function App() {
       }
     } catch (e) {
       console.error("Failed to load session", e);
+    }
+  };
+
+  const handleDeleteSession = async (e, sessionId) => {
+    e.stopPropagation();
+    try {
+      const res = await fetch(`${API_BASE}/sessions/${sessionId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.data?.deleted) {
+        const remaining = sessions.filter(s => s.id !== sessionId);
+        setSessions(remaining);
+        if (activeSessionId === sessionId) {
+          if (remaining.length > 0) {
+            setActiveSessionId(remaining[0].id);
+          } else {
+            setActiveSessionId(null);
+            setMessages([]);
+            setArtifact(null);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to delete session", err);
+    }
+  };
+
+  const handleStartRename = (e, session) => {
+    e.stopPropagation();
+    setEditingSessionId(session.id);
+    setEditingTitle(session.title);
+  };
+
+  const handleSaveRename = async (sessionId) => {
+    if (!editingTitle.trim()) {
+      setEditingSessionId(null);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/sessions/${sessionId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editingTitle })
+      });
+      const data = await res.json();
+      if (data.data?.updated) {
+        setSessions(sessions.map(s => s.id === sessionId ? { ...s, title: editingTitle } : s));
+      }
+    } catch (err) {
+      console.error("Failed to rename session", err);
+    } finally {
+      setEditingSessionId(null);
     }
   };
 
@@ -233,7 +286,44 @@ export default function App() {
               className={`session-item ${s.id === activeSessionId ? 'active' : ''}`}
               onClick={() => setActiveSessionId(s.id)}
             >
-              <div className="session-item-title">{s.title}</div>
+              <div className="session-item-header">
+                {editingSessionId === s.id ? (
+                  <input
+                    type="text"
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveRename(s.id);
+                      if (e.key === 'Escape') setEditingSessionId(null);
+                    }}
+                    onBlur={() => handleSaveRename(s.id)}
+                    autoFocus
+                    style={{ fontSize: '13px', width: '100%', padding: '2px 4px', border: '1px solid #2563eb', borderRadius: '4px' }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <div className="session-item-title">{s.title}</div>
+                )}
+
+                {editingSessionId !== s.id && (
+                  <div className="session-actions">
+                    <button
+                      className="session-action-btn"
+                      title="Rename Session"
+                      onClick={(e) => handleStartRename(e, s)}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="session-action-btn delete"
+                      title="Delete Session"
+                      onClick={(e) => handleDeleteSession(e, s.id)}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                )}
+              </div>
               <div className="session-item-time">
                 {new Date(s.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
