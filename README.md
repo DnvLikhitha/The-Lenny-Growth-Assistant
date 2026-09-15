@@ -4,7 +4,7 @@ An AI-powered conversational web application grounded in Lenny's Podcast transcr
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 - [Overview](#-overview)
 - [Architecture & Tech Stack](#-architecture--tech-stack)
 - [Key Features](#-key-features)
@@ -23,7 +23,7 @@ An AI-powered conversational web application grounded in Lenny's Podcast transcr
 
 ---
 
-## 🌟 Overview
+## Overview
 
 **The Lenny Growth Assistant** allows product managers, growth marketers, and founders to ask complex product and growth questions and receive answers grounded strictly in **260+ Lenny's Podcast transcripts**. 
 
@@ -31,7 +31,7 @@ Every answer contains clickable, attributed citation chips referencing the guest
 
 ---
 
-## 🏗️ Architecture & Tech Stack
+## Architecture & Tech Stack
 
 - **Backend:** FastAPI (Python 3.11) with Uvicorn
 - **Vector Database:** PostgreSQL 16 with `pgvector` extension
@@ -43,7 +43,7 @@ Every answer contains clickable, attributed citation chips referencing the guest
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - **Grounded Vector Search (RAG):** Answers are pulled directly from 260+ transcript markdown files.
 - **Anti-Hallucination Guardrails:** Enforces a strict grounding threshold (`GROUNDING_THRESHOLD = 0.38`). Returns an explicit refusal when information is insufficient.
@@ -55,7 +55,7 @@ Every answer contains clickable, attributed citation chips referencing the guest
 
 ---
 
-## 🛠️ Prerequisites
+## Prerequisites
 
 Before getting started, ensure you have installed:
 - [Git](https://git-scm.com/)
@@ -65,7 +65,7 @@ Before getting started, ensure you have installed:
 
 ---
 
-## 🚀 Quick Start for New Users
+## Quick Start for New Users
 
 ### 1. Clone the Repository
 ```bash
@@ -98,7 +98,7 @@ docker exec -it lenny_ollama ollama pull llama3.2:3b
 
 ---
 
-## 🧪 How to Test the Application
+## How to Test the Application
 
 ### A. Automated Pytest Suite
 Run the complete automated test suite covering ingestion, retrieval ranking, provider routing, FastAPI endpoints, artifact security sanitization, and logging:
@@ -126,7 +126,7 @@ Follow the step-by-step end-to-end verification checklist located in [`docs/manu
 
 ---
 
-## ⚙️ Environment Variables Reference
+## Environment Variables Reference
 
 | Variable | Default | Description |
 |---|---|---|
@@ -139,7 +139,7 @@ Follow the step-by-step end-to-end verification checklist located in [`docs/manu
 
 ---
 
-## ❓ Troubleshooting & FAQs
+## Troubleshooting & FAQs
 
 #### Q: The web interface says `Failed to fetch` or `ERR_EMPTY_RESPONSE`.
 - Ensure Docker containers are running: `docker compose ps`.
@@ -149,7 +149,3 @@ Follow the step-by-step end-to-end verification checklist located in [`docs/manu
 - CPU inference for long-form essays can take 30–60 seconds on standard laptops.
 - For sub-3-second responses, set `LLM_PROVIDER=anthropic` and provide an `ANTHROPIC_API_KEY` in `.env`.
 
----
-
-## 📄 License & Attribution
-Grounded on publicly available transcript data from **[Lenny's Podcast](https://www.lenny-podcast.com/)** via the `ChatPRD/lennys-podcast-transcripts` repository.
