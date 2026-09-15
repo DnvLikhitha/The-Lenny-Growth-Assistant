@@ -123,7 +123,13 @@ export default function App() {
         if (artData.data) {
           setArtifact(artData.data);
           setStatus("idle");
+          // Remove temp dummy assistant message and keep user message
+          setMessages(prev => prev.filter(m => m.id !== tempAsstMsg.id));
+        } else if (artData.error) {
+          setStatus("idle");
+          console.error("Artifact generation error:", artData.error);
         }
+        fetchSessions();
         return;
       }
 

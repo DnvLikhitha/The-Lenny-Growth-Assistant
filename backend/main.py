@@ -210,6 +210,10 @@ async def api_generate_artifact(session_id: str, req: CreateArtifactRequest):
     messages = sess.get("messages", [])
     last_msg_id = messages[-1]["id"] if messages else None
 
+    # First, persist user prompt in messages so session isn't empty
+    if not messages or messages[-1]["role"] != "user":
+        save_message(session_id=session_id, role="user", content=req.prompt)
+
     try:
         res = await orchestrator.write_ship30_essay(
             topic=req.prompt,
@@ -227,6 +231,8 @@ async def api_generate_artifact(session_id: str, req: CreateArtifactRequest):
         return make_envelope(art)
     except ProviderError as pe:
         raise HTTPException(status_code=502, detail={"code": pe.code, "message": pe.message})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail={"code": "ARTIFACT_GEN_ERROR", "message": str(e)})
 
 @app.get("/artifacts/{artifact_id}")
 def api_get_artifact(artifact_id: str):
