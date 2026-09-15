@@ -5,7 +5,7 @@ import httpx
 from backend.providers.base import ModelProvider, ProviderError
 
 class OllamaProvider(ModelProvider):
-    def __init__(self, model_name: Optional[str] = None, base_url: Optional[str] = None, timeout: float = 60.0):
+    def __init__(self, model_name: Optional[str] = None, base_url: Optional[str] = None, timeout: float = 300.0):
         self.model_name = model_name or os.getenv("LLM_MODEL", "llama3.1:8b")
         self.base_url = (base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")).rstrip("/")
         self.timeout = timeout

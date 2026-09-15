@@ -34,7 +34,7 @@ services:
     container_name: lenny_api
     restart: always
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/lenny_assistant
       LLM_PROVIDER: ollama
@@ -53,7 +53,7 @@ services:
     container_name: lenny_frontend
     restart: always
     ports:
-      - "3000:80"
+      - "3001:80"
     depends_on:
       - api
     networks:

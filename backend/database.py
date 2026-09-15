@@ -52,6 +52,22 @@ def init_app_db():
         );
         """)
 
+        # transcript_chunks table
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS transcript_chunks (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            episode_slug TEXT NOT NULL,
+            episode_title TEXT NOT NULL,
+            guest_name TEXT NOT NULL,
+            source_path TEXT NOT NULL,
+            approx_timestamp TEXT,
+            chunk_index INT NOT NULL,
+            content TEXT NOT NULL,
+            embedding vector(384),
+            UNIQUE(source_path, chunk_index)
+        );
+        """)
+
         # message_citations table
         cur.execute("""
         CREATE TABLE IF NOT EXISTS message_citations (

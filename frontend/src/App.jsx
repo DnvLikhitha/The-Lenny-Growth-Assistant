@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = "http://localhost:8001";
 
 export default function App() {
   const [sessions, setSessions] = useState([]);
@@ -284,7 +284,7 @@ export default function App() {
               <iframe
                 title="Sandboxed Artifact Preview"
                 className="artifact-iframe"
-                sandbox="allow-same-origin"  {/* STRICTLY NO allow-scripts */}
+                sandbox="allow-same-origin"
                 srcDoc={artifact.content}
               />
             ) : (
