@@ -38,7 +38,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/lenny_assistant
       LLM_PROVIDER: ollama
-      LLM_MODEL: llama3.1:8b
+      LLM_MODEL: llama3.2:3b
       OLLAMA_BASE_URL: http://ollama:11434
     depends_on:
       - postgres
