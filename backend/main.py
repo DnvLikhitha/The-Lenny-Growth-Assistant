@@ -138,6 +138,14 @@ def api_update_session(session_id: str, req: UpdateSessionRequest):
         raise HTTPException(status_code=404, detail="Session not found")
     return make_envelope({"updated": True, "title": req.title})
 
+@app.put("/sessions/{session_id}")
+def api_put_update_session(session_id: str, req: UpdateSessionRequest):
+    from backend.database import update_session_title
+    success = update_session_title(session_id, req.title)
+    if not success:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return make_envelope({"updated": True, "title": req.title})
+
 @app.post("/sessions/{session_id}/messages")
 async def api_send_message(session_id: str, req: SendMessageRequest):
     sess = get_session(session_id)
@@ -219,11 +227,13 @@ async def api_generate_artifact(session_id: str, req: CreateArtifactRequest):
         raise HTTPException(status_code=404, detail="Session not found")
 
     messages = sess.get("messages", [])
-    last_msg_id = messages[-1]["id"] if messages else None
-
-    # First, persist user prompt in messages so session isn't empty
+    
+    # First, persist user prompt in messages so session isn't empty and retrieve fresh ID
     if not messages or messages[-1]["role"] != "user":
-        save_message(session_id=session_id, role="user", content=req.prompt)
+        user_msg = save_message(session_id=session_id, role="user", content=req.prompt)
+        last_msg_id = user_msg["id"]
+    else:
+        last_msg_id = messages[-1]["id"]
 
     try:
         res = await orchestrator.write_ship30_essay(
